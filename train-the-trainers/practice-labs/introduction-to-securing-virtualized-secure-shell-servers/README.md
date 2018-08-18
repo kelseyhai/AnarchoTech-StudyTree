@@ -248,7 +248,7 @@ In order for our two computers to be able to talk to each other, they each need 
 
 The configuration specified in the Vagrantfile using `config.vm.network` already included in this repository *should* do this for you automatically, however, if it *doesn't*, we need to set up a DHCP server manually and renew the leases on our machines.
 
-Here's how to first check and see if you need to renew the leases, and how to do that if you necessary. 
+Here's how to first check and see if you need to renew the leases, and how to do that if necessary. 
 
 ### Checking IP addresses
 
