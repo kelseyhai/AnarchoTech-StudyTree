@@ -209,7 +209,83 @@ We'll begin by ensuring you have successfully completed the [set up](#set-up) st
 
 ## Introduction
 
-> :construction: TK-TODO
+### Lay of the land
+
+> :construction: Keep developing this!
+
+First, let's get a lay of the land by checking out our Vagrantfiles. The Vagrantfiles determine how our virtual machines (run on VirtualBox) are going to be configured and provisioned.
+
+In the main directory of the lab (`introduction-to-securing-virtualized-secure-shell-servers`), you'll see two other directories already here for you, the names of which may be familiar to you. They are:
+
+* `ubuntu-xenial64`
+* `centos-7`
+
+These are, as you may know, the names of operating systems. We can imagine that these are actually two actual computers we have. First, we're going to check out what our `ubuntu-xenial64` machine looks like.
+
+So, `cd` into the directory `ubuntu-xenial64` and `ls` to take a look around.
+
+You'll see there's one file here, called `Vagrantfile`. That's the [Vagrantfile](https://www.vagrantup.com/docs/vagrantfile/) for our computer running on Ubuntu Xenial (16.04). To confirm that, do a quick `less` on the `Vagrantfile`. You'll see a few lines that configure the OS (`config.vm.box = ubuntu-xenial64`).
+
+Now you can do the same thing in your `centos-7` directory's Vagrantfile.
+
+:beginner: :bulb: It's really helpful to be able to see both screens at once. I recommend using a program like `screen` to enable multiple terminals at once, or else you can simply open two terminal windows and place them next to each other.
+
+`cd` into the `centos-7` directory.
+
+`cd` into the `ubuntu-xenial64` directory.
+
+`ls` in both directories to confirm the existence of the Vagrantfile in both directories.
+
+Great! You can check out the Vagrantfiles if you like, but we recommend not changing them for the purposes of this lab, since they've been configured to make learning hardening SSH.
+
+### Assigning first roles
+
+Now you're going to decide which machine will play the server and which will play the client. It's more typical to expect the CentOS 7 machine to play the server and the Ubuntu machine will be the client, due to the nature of the OSes, but it's certainly not unheard of to have things be the other way around. We're going to learn how to do this both ways, anyway, so it doesn't matter too much what you choose right now. ;)
+
+## Setting up the server
+
+Once you decide which machine is going to be your server for the first go-around, `cd` into the directory of that machine.
+
+The command to start a virtual machine using Vagrant is `vagrant up`. In either directory, go ahead and do this. This will start up the virtual machines respectively.
+
+Vagrant automatically provisions the machines with an SSH server, so that you can go inside them. If this were not the case, we'd have to manually install `sshd` using the appropriate package manager (such as `yum` or `apt`).
+
+`vagrant ssh` into whichever machine will play the role of the server for now.
+
+We're going to need to be `sudo` in order to do business here, so I recommend just immediately doing `sudo su` right off the bat.
+
+First, let's set up our server machine in a secure way.
+
+1. Use a text editor (such as Vi) to edit the `/etc/ssh/sshd_config` file.
+1. We're going to use [the Tech Autonomy guide on hardening SSH](https://we.riseup.net/tech-autonomy+infrastructure/ssh#harden-ssh-server) for this.
+    1. Follow the instructions under "Harden SSH server" there, including the `moduli` file instructions using the bash commands, if applicable.
+        * *Note*: The last line of the `sshd_config` suggested in the Tech Autonomy guide says to add `DebianBanner no` so that the client does not see what the OS of the server is upon login. For CentOS 7, this configuration line is already available as the commented line:
+
+        ```
+        # no default banner path
+        # Banner none
+        ```
+        Simply uncommenting (removing the `#` from the beginning of `Banner none`) will do the same thing. 
+
+    1. Remove unused keys as described by the guide; regenerate them with stronger crypto.
+    1. Make the special sudo group `ssh-users`. This group will specify who can SSH into this machine in the first place.
+    1. Right away, add the following users to this group, or else you won't be able to `vagrant ssh` into your machine anymore:
+
+        * `vagrant`
+        * `root`
+        * Any other user accounts you may have optionally created
+
+    Using the command:
+    `usermod -a -G ssh-users $THE_USERNAME`
+
+1. Now that we're prepared, we're going to pretend to be very businessy business people and create an account for our client.
+   ![Business!](https://media1.tenor.com/images/e64055c1a218c7b602b29d85bde7ee38/tenor.gif)
+
+    1. `adduser [CLIENT-NAME]`. In my case, for example, I made a client account called `special-client`. Best sysadmin ever.
+    1. Add the client to the `ssh-users` group using the command from before:
+
+        `usermod -a -G ssh-users $THE_USERNAME`
+    1. Following the Tech Autonomy guide, be sure to [test and apply the new configuration](https://we.riseup.net/tech-autonomy+infrastructure/ssh#test-and-apply-the-new-configuration).
 
 # Discussion
 
@@ -218,6 +294,3 @@ We'll begin by ensuring you have successfully completed the [set up](#set-up) st
 > :construction: Discuss the utility of [Vagrant's multi-machine features](https://www.vagrantup.com/docs/multi-machine/). This is a great "exercise left to the reader," since it is a relatively advanced Vagrant-specific construct and slightly tangential to SSH hardening.
 
 # Additional references
-
-* [SSH, the Secure Shell: The Definitive Guide](https://www.worldcat.org/isbn/9780596008956) - Reference book thoroughly covering many aspects of SSH administration.
-* [SSH.com](https://ssh.com) - Maintained by the inventor of SSH, with some very good guides and reading material on the technology.
