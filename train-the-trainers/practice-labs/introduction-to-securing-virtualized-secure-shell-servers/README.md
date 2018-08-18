@@ -279,6 +279,7 @@ First, let's set up our server machine in a secure way.
     `usermod -a -G ssh-users $THE_USERNAME`
 
 1. Now that we're prepared, we're going to pretend to be very businessy business people and create an account for our client.
+
    ![Business!](https://media1.tenor.com/images/e64055c1a218c7b602b29d85bde7ee38/tenor.gif)
 
     1. `adduser [CLIENT-NAME]`. In my case, for example, I made a client account called `special-client`. Best sysadmin ever.
