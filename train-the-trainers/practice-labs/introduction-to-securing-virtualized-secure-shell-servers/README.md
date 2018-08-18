@@ -228,7 +228,7 @@ You'll see there's one file here, called `Vagrantfile`. That's the [Vagrantfile]
 
 Now you can do the same thing in your `centos-7` directory's Vagrantfile.
 
-:beginner: :bulb: It's really helpful to be able to see both screens at once. I recommend using a program like `screen` to enable multiple terminals at once, or else you can simply open two terminal windows and place them next to each other.
+> :beginner: :bulb: It's really helpful to be able to see both screens at once. I recommend using a program like `screen` to enable multiple terminals at once, or else you can simply open two terminal windows and place them next to each other.
 
 `cd` into the `centos-7` directory.
 
