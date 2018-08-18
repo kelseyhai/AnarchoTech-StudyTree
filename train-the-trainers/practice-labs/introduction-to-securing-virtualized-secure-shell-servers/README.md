@@ -272,6 +272,8 @@ If you *do not* have an IP address following `inet`, or no `inet` line at all, t
 
 ### Renewing DHCP leases
 
+This process must be repeated for any/either machine that *does not* have an IP address.
+
 1. First, shutdown your virtual machines by exiting to your host and using `vagrant halt`.
 
 1. In the directory of the machine (eg. `ubuntu-xenial64`), use the VirtualBox commandline tool `vboxmanage` to list your DHCP servers:
