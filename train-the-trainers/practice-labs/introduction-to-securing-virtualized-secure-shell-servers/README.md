@@ -338,13 +338,50 @@ First, let's set up our server machine in a secure way.
 
    ![Business!](https://media1.tenor.com/images/e64055c1a218c7b602b29d85bde7ee38/tenor.gif)
 
-    1. `adduser [CLIENT-NAME]`. In my case, for example, I made a client account called `special-client`. Best sysadmin ever.
+    1. We can do this by using `adduser [CLIENT-NAME]`. In my case, for example, I made a client account called `special-comrade` because it feels less "enterprise"-y. Best sysadmin ever.
 
     1. Add the client to the `ssh-users` group using the command from before:
 
         `usermod -a -G ssh-users $THE_USERNAME`
 
     1. Following the Tech Autonomy guide, be sure to [test and apply the new configuration](https://we.riseup.net/tech-autonomy+infrastructure/ssh#test-and-apply-the-new-configuration).
+
+1. Finally, let's make sure that the ownership and permissions of the `/home/$THE_CLIENT/.ssh` directory are set properly.
+    1. Run an `ls -la` on the home directory of the client, paying special attention to the permissions and ownership of the `.ssh` directory.
+    1. The owner should be `$THE_CLIENT`, and the permission bits should be `drwx------.`
+        1. If the above is not true, you'll need to change the permission bits on the directory and the `authorized_keys` file if necessary:
+
+        For the directory:
+        `chmod 700 ~/.ssh`
+
+        For the file:
+        `chmod 600 ~/.ssh/authorized_keys`
+
+    1. Similarly, you may need to change the ownership of the directory and its contents by running:
+
+    `chown $THE_CLIENT:$THE_CLIENT /home/$THE_CLIENT/.ssh`
+
+## Setting up the client
+
+Okay, now that we have a server to SSH into, now we need to configure our client's side of things.
+
+Once again, we'll be using the [Tech Autonomy guide on hardening SSH clients](https://we.riseup.net/tech-autonomy+infrastructure/ssh#configure-ssh-client).
+
+1. Move to your client machine by `cd`ing into the directory of that machine and using `vagrant up` and `vagrant ssh`. (You can check to see if your machine is already running by using `vagrant status`.)
+
+1. `cd` into your user's `~/.ssh/` directory. If there isn't already a `config` file here, go ahead and create one using a text editor like Vi or Vim. 
+
+1. Add the lines detailed in the [Tech Autonomy guide](https://we.riseup.net/tech-autonomy+infrastructure/ssh#configure-ssh-client) to the `~/.ssh/config` file.
+
+1. Create (or re-generate) the client keys using strong values:
+
+    Generate keys ed25519 keys using the new SSH format with 100 rounds:
+    `ssh-keygen -t ed25519 -o -a 100`
+
+    Generate RSA keys with 4096 bits using SSH protocol 2 with 100 rounds: 
+    `ssh-keygen -t rsa -b 4096 -o -a 100`
+
+Higher numbers (like 100) of KDF (key derivation function) rounds result in slower passphrase verification and therefore increase resistance to brute-force password cracking.
 
 # Discussion
 
