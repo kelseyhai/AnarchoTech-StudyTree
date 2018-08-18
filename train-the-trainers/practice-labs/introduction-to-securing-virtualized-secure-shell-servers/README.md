@@ -220,3 +220,4 @@ We'll begin by ensuring you have successfully completed the [set up](#set-up) st
 # Additional references
 
 * [SSH, the Secure Shell: The Definitive Guide](https://www.worldcat.org/isbn/9780596008956) - Reference book thoroughly covering many aspects of SSH administration.
+* [SSH.com](https://ssh.com) - Maintained by the inventor of SSH, with some very good guides and reading material on the technology.
