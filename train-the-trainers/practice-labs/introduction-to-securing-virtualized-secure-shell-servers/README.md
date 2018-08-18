@@ -242,6 +242,60 @@ Great! You can check out the Vagrantfiles if you like, but we recommend not chan
 
 Now you're going to decide which machine will play the server and which will play the client. It's more typical to expect the CentOS 7 machine to play the server and the Ubuntu machine will be the client, due to the nature of the OSes, but it's certainly not unheard of to have things be the other way around. We're going to learn how to do this both ways, anyway, so it doesn't matter too much what you choose right now. ;)
 
+## Confirming DHCP works
+
+In order for our two computers to be able to talk to each other, they each need their own unique IP address. This comes from a virtual DHCP server that needs to be created before we start anything.
+
+The configuration specified in the Vagrantfile using `config.vm.network` already included in this repository *should* do this for you automatically, however, if it *doesn't*, we need to set up a DHCP server manually and renew the leases on our machines.
+
+Here's how to first check and see if you need to renew the leases, and how to do that if you necessary. 
+
+### Checking IP addresses
+
+This process must be done twice; once for either machine.
+
+1. `cd` into the directory of the machine.
+1. Use the command `ip a` to show the network IP addresses for each device.
+1. At the bottom of that output, typically on device 3 (`eth1` or `enp0s8`, for example):
+
+```
+3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether 08:00:27:e0:f3:4f brd ff:ff:ff:ff:ff:ff
+    inet 172.16.10.2/24 brd 172.16.10.255 scope global noprefixroute dynamic eth1
+       valid_lft 1092sec preferred_lft 1092sec
+    inet6 fe80::a00:27ff:fee0:f34f/64 scope link
+       valid_lft forever preferred_lft forever
+```
+1. If you *have* an IP address following `inet`, then your DHCP configuration most likely worked, and you should be okay to skip to [Assigning first roles](#assigning-first-roles).
+
+If you *do not* have an IP address following `inet`, or no `inet` line at all, then do the following steps to [renew your DHCP leases](#renewing-dhcp-leases).
+
+### Renewing DHCP leases
+
+1. First, shutdown your virtual machines by exiting to your host and using `vagrant halt`.
+
+1. In the directory of the machine (eg. `ubuntu-xenial64`), use the VirtualBox commandline tool `vboxmanage` to list your DHCP servers:
+
+`vboxmanage dhcpserver list`
+
+1. The DHCP server we want to see in this list is called `sshtestnet`. This was configured by the authors of this lab so that users like you could have a DHCP server ready to go. If it's not working, this means it needs to be added to the list of DHCP servers. We can do this by using `vboxmanage` with the following options:
+
+```
+vboxmanage dhcpserver add --netname sshtestnet --ip 172.16.10.1 --netmask 255.255.255.0 --lowerip 172.16.10.2 --upperip 172.16.10.25 --enable
+```
+Here's a breakdown of this command and a tiny surface intro to some networking basics:
+
+* `vboxmanage` - the VirtualBox command line configuration utility
+* `dhcpserver` - tell `vboxmanage` we're going to be configuring DHCP servers
+* `add --netname sshtestnet` - Tell `vboxmanage` that the `intnet` we already have called `sshtestnet` needs to be added to the list of DHCP servers
+* `--ip 172.16.10.1` - For our DHCP server, we'd like an IP range using the non-routable IP address range `172.16.10`, and we'd like the DHCP server itself to be known as machine `1` in the context of this address.
+* `--netmask 255.255.255.0` - This configures the netmask so that our IP address has a certain structure; namely, that the first three "octets" (so, the first three parts, as in: `###.##.##`) in an IP address are reserved for network addresses. The final `0` tells us that the last octet in our IP addresses will be to specify machines (and from the command prior, we told VirtualBox we want our DHCP server - the machine itself - to be machine number `1`).
+* `--lower-ip 172.16.10.2` - This tells us that the lowest number in our IP range will be `2`. It can't be `1`, remember, since that's already been assigned to the DHCP server.
+* `--upper-ip 172.16.10.25` - This tells us that the highest number in our IP range will be `25`, which also means that we have space for a total of 24 other machines on this network. (Note: the highest it can go up to is 254, because that's the maximumn number of bits that can be expressed in an octet. The reason we have Ipv6 now is actually because we're running out of space just using the Ipv4 conventions.)
+* `--enable` - Turn that sucker on. (Enable the DHCP server we just specified.)
+
+1. Now that your DHCP server is configured (hopefully correctly), go ahead and spin up your virtual machines again by running `vagrant up` on either/both.
+
 ## Setting up the server
 
 Once you decide which machine is going to be your server for the first go-around, `cd` into the directory of that machine.
@@ -283,9 +337,11 @@ First, let's set up our server machine in a secure way.
    ![Business!](https://media1.tenor.com/images/e64055c1a218c7b602b29d85bde7ee38/tenor.gif)
 
     1. `adduser [CLIENT-NAME]`. In my case, for example, I made a client account called `special-client`. Best sysadmin ever.
+
     1. Add the client to the `ssh-users` group using the command from before:
 
         `usermod -a -G ssh-users $THE_USERNAME`
+
     1. Following the Tech Autonomy guide, be sure to [test and apply the new configuration](https://we.riseup.net/tech-autonomy+infrastructure/ssh#test-and-apply-the-new-configuration).
 
 # Discussion
