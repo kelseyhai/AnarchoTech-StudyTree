@@ -256,7 +256,7 @@ This process must be done twice; once for either machine.
 
 1. `cd` into the directory of the machine.
 1. Use the command `ip a` to show the network IP addresses for each device.
-1. At the bottom of that output, typically on device 3 (`eth1` or `enp0s8`, for example):
+1. At the bottom of that output, typically on device 3 (`eth1` or `enp0s8`, for example), you should see output similar to the following:
 
 ```
 3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
