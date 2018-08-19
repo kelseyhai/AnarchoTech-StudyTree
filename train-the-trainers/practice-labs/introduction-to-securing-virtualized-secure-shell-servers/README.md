@@ -255,6 +255,8 @@ Here's how to first check and see if you need to renew the leases, and how to do
 This process must be done twice; once for either machine.
 
 1. `cd` into the directory of the machine.
+1. Run `vagrant up` to get the machine turned on.
+1. Use `vagrant ssh` to get into the machine.
 1. Use the command `ip a` to show the network IP addresses for each device.
 1. At the bottom of that output, typically on device 3 (`eth1` or `enp0s8`, for example), you should see output similar to the following:
 
@@ -378,7 +380,7 @@ Once again, we'll be using the [Tech Autonomy guide on hardening SSH clients](ht
     Generate keys ed25519 keys using the new SSH format with 100 rounds:
     `ssh-keygen -t ed25519 -o -a 100`
 
-    Generate RSA keys with 4096 bits using SSH protocol 2 with 100 rounds: 
+    Generate RSA keys with 4096 bits using the new SSH format with 100 rounds: 
     `ssh-keygen -t rsa -b 4096 -o -a 100`
 
 Higher numbers (like 100) of KDF (key derivation function) rounds result in slower passphrase verification and therefore increase resistance to brute-force password cracking.
